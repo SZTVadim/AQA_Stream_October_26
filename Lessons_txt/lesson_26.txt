@@ -1,0 +1,271 @@
+мы с вами знаем что модуль pytest используется для запуска наших автоетстов 
+также мы знаем что есть модуль playwright, но сегодня также будем говорить про дополнительный модуль 
+pytest-playwright он позмоляет писать наши автотесты для UI и облечают запуски автотестов 
+
+pip install pytest-playwright
+
+
+test_visible
+
+Код:
+def test_visible(page: Page):
+    page.goto('https://www.qa-practice.com/elements/input/simple')
+    sleep(2)
+    reqs = page.locator('#req_text')
+    expect(reqs).not_to_be_visible()
+    expect(reqs).to_be_hidden()
+    page.locator('#req_header').click()
+    sleep(1)
+    expect(reqs).to_be_visible()
+    sleep(2)
+
+Описание:
+Этот тест тренирует работу с видимостью элементов и простейшими ожиданиями.
+
+1. Открываем страницу с простым инпутом https://www.qa-practice.com/elements/input/simple.
+2. Находим элемент с id="req_text" – это текст «обязательное поле», который по умолчанию скрыт.
+3. Проверяем два свойства:
+   - not_to_be_visible – элемент не виден пользователю (его нельзя увидеть на странице).
+   - to_be_hidden – элемент скрыт (например, через CSS).
+4. Кликаем по заголовку с id="req_header" – это действие должно показать предупреждающий текст.
+5. Снова проверяем to_be_visible – теперь текст должен отображаться на странице.
+
+Идея: увидели разницу между видимым/невидимым элементом и проверили, что действие пользователя может менять состояние элемента.
+
+----------------------------------------
+
+test_enabled_and_select
+
+Код:
+def test_enabled_and_select(page: Page):
+    sleep(3)
+    page.goto('https://www.qa-practice.com/elements/button/disabled')
+    button = page.locator('#submit-id-submit')
+    expect(button).to_be_disabled()
+    page.locator('#id_select_state').select_option('Enabled')
+    expect(button).to_be_enabled()
+    expect(button).to_have_text('Submit')
+    expect(button).to_contain_text('ubm')
+    sleep(2)
+
+Описание:
+Тест тренирует проверки активности кнопки и работу с выпадающим списком.
+
+1. Открываем страницу https://www.qa-practice.com/elements/button/disabled.
+2. Находим кнопку #submit-id-submit и убеждаемся, что она изначально отключена (to_be_disabled).
+3. В селекте #id_select_state выбираем значение Enabled – этим мы программно меняем состояние кнопки.
+4. Проверяем:
+   - to_be_enabled – кнопка стала активной и её можно нажать.
+   - to_have_text('Submit') – текст на кнопке полностью совпадает с ожидаемым.
+   - to_contain_text('ubm') – внутри текста есть нужная подстрока (пример частичного совпадения).
+
+Идея: показать, как изменения в форме (выбор в select) влияют на доступность кнопки и как проверять текст.
+
+----------------------------------------
+
+test_value
+
+Код:
+def test_value(page: Page):
+    text = 'qwert'
+    page.goto('https://www.qa-practice.com/elements/input/simple')
+    input_field = page.locator('#id_text_string')
+    input_field.fill(text)
+    expect(input_field, f'input value is not {text}').to_have_value(text)
+
+Описание:
+Тест тренирует работу с полями ввода и проверку введённого значения.
+
+1. Задаём тестовую строку text = 'qwert'.
+2. Открываем страницу с инпутом https://www.qa-practice.com/elements/input/simple.
+3. Находим поле #id_text_string.
+4. Заполняем поле текстом с помощью метода fill.
+5. Проверяем, что у поля текущее значение (value) совпадает с ожидаемым через to_have_value(text).
+
+Идея: показать, как вводить данные в форму и проверять, что значение действительно установилось.
+
+----------------------------------------
+
+test_focused
+
+Код:
+def test_focused(page: Page):
+    page.goto('https://www.google.com')
+    field = page.locator('[name="q"]')
+    sleep(3)
+    expect(field).to_be_focused()
+
+Описание:
+Тест показывает, как проверять фокус поля ввода.
+
+1. Открываем https://www.google.com.
+2. Находим поле поиска по селектору [name="q"].
+3. Используем to_be_focused, чтобы убедиться, что браузер автоматически поставил курсор в поле поиска без клика.
+
+Идея: показать, что можно проверять, какой элемент сейчас в фокусе (куда будет печатать пользователь).
+
+----------------------------------------
+
+test_tabs
+
+Код:
+def test_tabs(page: Page, context: BrowserContext):
+    sleep(3)
+    page.goto('https://www.qa-practice.com/elements/new_tab/link')
+    link = page.locator('#new-page-link')
+    with context.expect_page() as new_page_event:
+        link.click()
+    sleep(3)
+    new_page = new_page_event.value
+    result = new_page.locator('#result-text')
+    expect(result).to_have_text('I am a new page in a new tab')
+    new_page.close()
+    page.get_by_role('link', name='New tab button').click()
+    sleep(3)
+
+Описание:
+Тест тренирует работу с новыми вкладками (tabs) и контекстом браузера.
+
+1. Открываем страницу https://www.qa-practice.com/elements/new_tab/link.
+2. Находим ссылку #new-page-link, которая открывает новую страницу в новой вкладке.
+3. Используем конструкцию:
+   - with context.expect_page() as new_page_event: – говорим Playwright: «сейчас откроется новая страница, поймай её».
+   - link.click() – кликаем по ссылке, именно этот клик должен открыть новую вкладку.
+4. После выхода из блока получаем реальный объект новой страницы: new_page = new_page_event.value.
+5. На новой вкладке находим элемент #result-text и проверяем, что в нём текст:
+   I am a new page in a new tab.
+6. Закрываем новую вкладку, чтобы не оставлять лишние окна открытыми.
+7. Дополнительно кликаем по ссылке New tab button – ещё один пример открытия новой вкладки.
+
+Идея: показать, как правильно ловить новую вкладку, переключаться на неё и проверять содержимое.
+
+
+----------------------------------------
+
+test_d_n_d
+
+Код:
+def test_d_n_d(page: Page):
+    sleep(3)
+    page.goto('https://www.qa-practice.com/elements/dragndrop/boxes')
+    drag_me = page.locator('#rect-draggable')
+    drop_here = page.locator('#rect-droppable')
+    drag_me.drag_to(drop_here)
+    sleep(3)
+
+Описание:
+Тест тренирует drag and drop – перетаскивание элементов мышью.
+
+1. Открываем страницу https://www.qa-practice.com/elements/dragndrop/boxes.
+2. Находим:
+   – drag_me – прямоугольник, который можно перетаскивать (#rect-draggable).
+   – drop_here – область, куда его нужно положить (#rect-droppable).
+3. Вызываем drag_me.drag_to(drop_here) – Playwright сам симулирует зажатие кнопки мыши, перенос и отпускание над целевой областью.
+
+Идея: показать, как легко реализовать drag’n’drop без ручных координат и низкоуровневых действий.
+
+----------------------------------------
+
+
+
+===========================================================================================
+===========================================================================================
+
+alert: Dialog
+
+Что это такое - Объект, который представляет всплывающее браузерное окно:
+alert("...")
+confirm("...")
+prompt("...")
+
+Что у него есть:
+
+dialog.message — текст в окошке.
+dialog.type — тип (alert, confirm, prompt).
+dialog.accept([text]) — нажать OK (для prompt можно передать текст).
+dialog.dismiss() — нажать Cancel.
+
+Как получаем:
+
+Через обработчик события:
+def handle(dialog: Dialog):
+    print(dialog.message)
+    dialog.accept()evaluate
+page.on("dialog", handle)
+
+
+
+===========================================================================================
+===========================================================================================
+
+
+test_alert
+
+Код:
+def test_alert(page: Page):
+    sleep(3)
+
+    def cancel_alert(alert: Dialog):
+        print(alert.message)
+        print(alert.type)
+        alert.dismiss()
+
+    def fill_and_accept(alert: Dialog):
+        alert.accept('some text')
+
+    page.on('dialog', fill_and_accept)
+    page.goto('https://www.qa-practice.com/elements/alert/prompt')
+    page.wait_for_event('dialog', lambda alert: alert.accept('another text'))
+    page.get_by_role('link', name='Click').click()
+    sleep(3)
+
+Описание:
+Тест показывает разные способы работы с диалогами (alert, confirm, prompt) в Playwright.
+
+1. В начале делаем небольшую паузу, чтобы увидеть работу теста глазами.
+2. Определяем два возможных обработчика (как примеры):
+   – cancel_alert(alert) – печатает текст и тип диалога, затем жмёт dismiss() (Cancel).
+   – fill_and_accept(alert) – вызывает accept('some text'), то есть для prompt вводит текст и нажимает OK.
+3. Подписываемся на событие диалога:
+   – page.on('dialog', fill_and_accept) – теперь любой появившийся диалог на этой странице будет обработан функцией fill_and_accept.
+4. Переходим на страницу с prompt-диалогом:
+   https://www.qa-practice.com/elements/alert/prompt.
+5. Показываем ещё один способ обработки:
+   – page.wait_for_event('dialog', lambda alert: alert.accept('another text')) – ждём следующий диалог и сразу принимаем его с текстом 'another text'.
+6. Кликаем по ссылке Click, которая действительно открывает prompt.
+7. Ждём, чтобы успеть увидеть, какой текст попал в диалог и какой результат отобразился на странице.
+
+Идея:
+– показать два паттерна работы с диалогами:
+  • глобальный обработчик: page.on('dialog', handler) – подходит, когда диалогов много и в разных местах;
+  • точечное ожидание: page.wait_for_event('dialog', handler) – удобно, когда нужно обработать один конкретный диалог, связанный с конкретным действием.
+
+
+
+Разные виды алертов
+
+def test_alert_accept(page: Page):
+    page.goto("https://demoqa.com/alerts")
+
+    def handle_accept(alert: Dialog):
+        sleep(2) # пауза добавлена для наглядности
+        alert.accept()
+
+    page.on("dialog", handle_accept)
+    page.locator("#alertButton").click()
+
+def test_alert_dismiss(page: Page):
+    page.goto("https://demoqa.com/alerts")
+
+    def handle_accept(alert: Dialog):
+        sleep(2) # пауза добавлена для наглядности
+        alert.dismiss()
+    page.on("dialog", handle_accept)
+    page.locator("#confirmButton").click()
+
+def test_alert_promt(page: Page):
+    page.goto("https://demoqa.com/alerts")
+
+    def handle_accept(alert: Dialog):
+        sleep(2) # пауза добавлена для наглядности
+        alert.accept("Vadim")

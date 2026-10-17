@@ -1,0 +1,6 @@
+Найти элементы обозначенные стрелочками на картинке с помощью:
+- или CSS
+- или XPath
+
+урл сайта https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
+картинка в файле homework_21.png

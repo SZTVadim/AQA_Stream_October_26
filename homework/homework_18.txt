@@ -1,0 +1,155 @@
+Домашнее задание: фикстуры pytest (вложенность, setup / teardown, порядок выполнения)
+
+Сдать в репозитории папку homework_18/:
+- conftest.py
+- test_fixtures.py
+- order.txt
+
+============================================================
+ЗАДАНИЕ 1. Собрать цепочку фикстур
+============================================================
+
+В conftest.py скопируй фикстуры ниже. Их менять нельзя.
+
+import pytest
+import time
+
+
+@pytest.fixture
+def test_user():
+    print("SETUP: создаём тестового пользователя")
+    return "Test user"
+
+
+@pytest.fixture
+def delete_user():
+    yield
+    print("TEARDOWN: удаляем тестового пользователя")
+
+
+@pytest.fixture
+def test_timer():
+    start = time.time()
+    yield
+    end = time.time()
+    print(f"Тест выполнялся: {end - start:.2f} сек")
+
+
+Сами должны сделать:
+
+1) Фикстуру setup_user в conftest.py:
+   - фикстура должна создавать тестового пользователя и прокинуть его в тест
+   - после теста должна удалить тестовог опользователя
+   - после теста должно быть написано сколько времени выполнялся тест 
+   все это сделать используя готовые решения
+
+2) Тест test_user_flow в test_fixtures.py:
+   - принять только setup_user
+   - вывести значение setup_user через print
+   - сделать паузу time.sleep(3)
+
+В тесте нельзя напрямую принимать test_user, delete_user или test_timer.
+
+Ожидаемый вывод pytest -s (время может быть 3.00–3.05):
+
+SETUP: создаём тестового пользователя
+Test user
+Тест выполнялся: 3.0x сек
+TEARDOWN: удаляем тестового пользователя
+
+============================================================
+ЗАДАНИЕ 2. Порядок выполнения фикстур
+============================================================
+
+В тот же conftest.py добавь фикстуры ниже. Их менять нельзя.
+Тест test_puzzle тоже дан — не менять сигнатуру и тело.
+
+@pytest.fixture
+def base():
+    print("SETUP base")
+    yield
+    print("TEARDOWN base")
+
+
+@pytest.fixture
+def auth(base):
+    print("SETUP auth")
+    yield
+    print("TEARDOWN auth")
+
+
+@pytest.fixture
+def db():
+    print("SETUP db")
+    yield
+    print("TEARDOWN db")
+
+
+@pytest.fixture
+def bundle(auth, db):
+    print("SETUP bundle")
+    yield
+    print("TEARDOWN bundle")
+
+
+@pytest.fixture
+def cache():
+    print("SETUP cache")
+    yield
+    print("TEARDOWN cache")
+
+
+@pytest.fixture
+def warm_cache(cache):
+    print("SETUP warm_cache")
+    yield
+    print("TEARDOWN warm_cache")
+
+
+@pytest.fixture
+def logger(base, db):
+    print("SETUP logger")
+    yield
+    print("TEARDOWN logger")
+
+
+@pytest.fixture
+def app(bundle):
+    print("SETUP app")
+    yield
+    print("TEARDOWN app")
+
+
+@pytest.fixture
+def metrics():
+    print("SETUP metrics")
+    yield
+    print("TEARDOWN metrics")
+
+
+Тест (положить в test_fixtures.py, не менять):
+
+def test_puzzle(app, logger):
+    print("TEST")
+
+
+Задача: в файле order.txt расписать порядок строк, которые напечатает pytest -s для test_puzzle без запуска кода.
+Пиши по одной строке, как в консоли, включая TEST.
+
+Подсказки:
+- сначала выполняется setup зависимостей, потом самой фикстуры
+- teardown идёт в обратном порядке относительно setup
+- фикстура создаётся один раз за тест: если base и db нужны нескольким фикстурам, SETUP base и SETUP db будут по одному разу
+- фикстуры, которые не входят в цепочку test_puzzle(app, logger), не выполняются
+- порядок аргументов теста важен: сначала app, потом logger
+
+Можно сначала написать порядок, потом проверить pytest -s. Для зачёта смотрится order.txt.
+
+
+============================================================
+Условия (нельзя)
+============================================================
+
+- фикстуры из «дано» менять нельзя
+- фикстуры писать только в conftest.py, тесты — только в test_fixtures.py
+- в test_user_flow нельзя создавать и удалять пользователя руками

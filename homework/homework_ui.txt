@@ -1,0 +1,7 @@
+сделать UI проект, описав страницы:
+- https://action-press.ru/ (обязательно описать элемент поиска через инпут, и написать првоерки на поиск "Электронный журнал. ВИП-версия "Главбух" 12 мес.")
+- вынести Каталог в отдельный класс
+
+- https://action-press.ru/about/
+- https://action-press.ru/about/contacts/
+- https://action-press.ru/about/payment/

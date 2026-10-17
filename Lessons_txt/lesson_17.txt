@@ -1,0 +1,359 @@
+Слайд 1 — Практические задания: Классы в автотестировании
+На этом уроке мы закрепим знания о классах на практике, создавая классы, которые реально
+используются в автоматизированном тестировании.
+
+Цель урока:
+- применить знания о классах для решения практических задач
+- создать классы, которые используются в тестировании
+- понять, как классы помогают структурировать тестовый код
+
+Задания будут включать:
+- работу с тестовыми данными
+- логирование результатов тестов
+- работу с API запросами и ответами
+- управление конфигурацией тестов
+- создание утилит для тестирования
+
+Слайд 2 — Задание 1: Класс для тестовых данных пользователя
+Задача:
+Создайте класс TestUser для хранения и работы с данными пользователя в тестах. Класс должен
+позволять создавать пользователей с различными данными и валидировать их корректность.
+
+Требования:
+1. Класс должен иметь конструктор __init__, который принимает:
+   - username (обязательный)
+   - email (обязательный)
+   - password (обязательный)
+   - age (опциональный, по умолчанию None)
+   - is_active (опциональный, по умолчанию True)
+
+2. Добавьте метод validate_email(), который проверяет, что email содержит символ "@"
+   и возвращает True/False
+
+3. Добавьте метод validate_password(), который проверяет, что пароль содержит минимум
+   8 символов и возвращает True/False
+
+4. Добавьте метод get_user_info(), который возвращает словарь со всеми данными пользователя
+
+5. Добавьте метод is_adult(), который возвращает True, если возраст >= 18, иначе False
+   (если возраст не указан, возвращает None)
+
+Пример использования:
+    user1 = TestUser("john_doe", "john@example.com", "securepass123", 25)
+    print(user1.validate_email())      # True
+    print(user1.validate_password())   # True
+    print(user1.is_adult())            # True
+    print(user1.get_user_info())       # {'username': 'john_doe', ...}
+
+Решение:
+    class TestUser:
+        def __init__(self, username, email, password, age=None, is_active=True):
+            self.username = username
+            self.email = email
+            self.password = password
+            self.age = age
+            self.is_active = is_active
+        
+        def validate_email(self):
+            """Проверяет корректность email"""
+            return "@" in self.email
+        
+        def validate_password(self):
+            """Проверяет, что пароль содержит минимум 8 символов"""
+            return len(self.password) >= 8
+        
+        def get_user_info(self):
+            """Возвращает словарь с данными пользователя"""
+            return {
+                "username": self.username,
+                "email": self.email,
+                "password": self.password,
+                "age": self.age,
+                "is_active": self.is_active
+            }
+        
+        def is_adult(self):
+            """Проверяет, является ли пользователь совершеннолетним"""
+            if self.age is None:
+                return None
+            return self.age >= 18
+
+Слайд 3 — Задание 2: Класс для логирования результатов тестов
+Задача:
+Создайте класс TestLogger для логирования результатов выполнения тестов. Класс должен
+накапливать информацию о тестах и предоставлять статистику.
+
+Требования:
+1. Конструктор __init__ должен инициализировать:
+   - пустой список для хранения результатов тестов
+   - счётчик пройденных тестов (passed)
+   - счётчик проваленных тестов (failed)
+
+2. Метод log_test(test_name, status) должен:
+   - принимать название теста и статус ("passed" или "failed")
+   - добавлять результат в список в формате словаря: {"test_name": ..., "status": ...}
+   - увеличивать соответствующий счётчик
+
+3. Метод get_statistics() должен возвращать словарь:
+   - total_tests: общее количество тестов
+   - passed: количество пройденных
+   - failed: количество проваленных
+   - success_rate: процент успешных тестов (округлить до 2 знаков)
+
+4. Метод get_failed_tests() должен возвращать список названий проваленных тестов
+
+5. Метод clear() должен очищать все результаты и сбрасывать счётчики
+
+Пример использования:
+    logger = TestLogger()
+    logger.log_test("test_login", "passed")
+    logger.log_test("test_registration", "failed")
+    logger.log_test("test_logout", "passed")
+    
+    print(logger.get_statistics())
+    # {'total_tests': 3, 'passed': 2, 'failed': 1, 'success_rate': 66.67}
+    
+    print(logger.get_failed_tests())  # ['test_registration']
+
+Решение:
+    class TestLogger:
+        def __init__(self):
+            self.test_results = []
+            self.passed = 0
+            self.failed = 0
+        
+        def log_test(self, test_name, status):
+            """Логирует результат выполнения теста"""
+            if status not in ["passed", "failed"]:
+                raise ValueError("Status must be 'passed' or 'failed'")
+            
+            self.test_results.append({
+                "test_name": test_name,
+                "status": status
+            })
+            
+            if status == "passed":
+                self.passed += 1
+            else:
+                self.failed += 1
+        
+        def get_statistics(self):
+            """Возвращает статистику по тестам"""
+            total = len(self.test_results)
+            if total == 0:
+                return {
+                    "total_tests": 0,
+                    "passed": 0,
+                    "failed": 0,
+                    "success_rate": 0.0
+                }
+            
+            success_rate = round((self.passed / total) * 100, 2)
+            return {
+                "total_tests": total,
+                "passed": self.passed,
+                "failed": self.failed,
+                "success_rate": success_rate
+            }
+        
+        def get_failed_tests(self):
+            """Возвращает список названий проваленных тестов"""
+            return [result["test_name"] for result in self.test_results 
+                    if result["status"] == "failed"]
+        
+        def clear(self):
+            """Очищает все результаты и сбрасывает счётчики"""
+            self.test_results = []
+            self.passed = 0
+            self.failed = 0
+
+Слайд 4 — Требования к примерам использования классов (Задания 1-2)
+Задача:
+Создайте практические примеры использования классов TestUser и TestLogger, которые демонстрируют
+их применение в реальных тестовых сценариях.
+
+Требования к примерам:
+
+1. Пример использования TestUser должен включать:
+   - Создание минимум 3 различных пользователей с разными данными:
+     * Взрослый пользователь с валидными данными
+     * Несовершеннолетний пользователь
+     * Пользователь с невалидным email или паролем
+   - Проверку всех методов класса для каждого пользователя
+   - Демонстрацию работы с опциональными параметрами (age, is_active)
+   - Вывод результатов валидации и информации о пользователях
+
+2. Пример использования TestLogger должен включать:
+   - Создание экземпляра логгера
+   - Логирование минимум 5 различных тестов с разными результатами
+   - Получение и вывод статистики выполнения тестов
+   - Получение списка проваленных тестов
+   - Демонстрацию метода clear() и повторное логирование
+
+3. Комбинированный пример должен показать:
+   - Использование TestUser для создания тестовых данных
+   - Использование TestLogger для логирования результатов проверок пользователей
+   - Связь между классами: результаты валидации пользователей логируются в TestLogger
+
+Пример структуры комбинированного использования:
+    # Создание пользователей
+    user1 = TestUser("john_doe", "john@example.com", "securepass123", 25)
+    user2 = TestUser("jane_smith", "jane@example.com", "weak", 16)
+    
+    # Создание логгера
+    logger = TestLogger()
+    
+    # Валидация и логирование результатов
+    if user1.validate_email() and user1.validate_password():
+        logger.log_test("test_user1_validation", "passed")
+    else:
+        logger.log_test("test_user1_validation", "failed")
+    
+    # Вывод статистики
+    print(logger.get_statistics())
+
+Ожидаемый результат:
+Примеры должны демонстрировать:
+- Правильное создание объектов классов
+- Использование всех методов классов
+- Обработку различных сценариев (валидные/невалидные данные)
+- Практическое применение классов в тестовых сценариях
+- Взаимодействие между классами
+
+
+
+
+Слайд 5 — Примеры использования классов TestUser и TestLogger
+Ниже представлены практические примеры использования классов TestUser и TestLogger согласно
+требованиям из слайда 4.
+
+Пример 1: Использование класса TestUser
+    # Создание различных пользователей
+    # Взрослый пользователь с валидными данными
+    user1 = TestUser("john_doe", "john@example.com", "securepass123", 25, True)
+    print("=== Пользователь 1 ===")
+    print(f"Валидный email: {user1.validate_email()}")           # True
+    print(f"Валидный пароль: {user1.validate_password()}")        # True
+    print(f"Совершеннолетний: {user1.is_adult()}")               # True
+    print(f"Информация: {user1.get_user_info()}")
+    
+    # Несовершеннолетний пользователь
+    user2 = TestUser("jane_smith", "jane@example.com", "password123", 16)
+    print("\n=== Пользователь 2 ===")
+    print(f"Валидный email: {user2.validate_email()}")           # True
+    print(f"Валидный пароль: {user2.validate_password()}")       # True
+    print(f"Совершеннолетний: {user2.is_adult()}")               # False
+    print(f"Информация: {user2.get_user_info()}")
+    
+    # Пользователь с невалидными данными
+    user3 = TestUser("bob_wilson", "invalid-email", "weak", 30, False)
+    print("\n=== Пользователь 3 ===")
+    print(f"Валидный email: {user3.validate_email()}")           # False
+    print(f"Валидный пароль: {user3.validate_password()}")       # False
+    print(f"Совершеннолетний: {user3.is_adult()}")               # True
+    print(f"Активен: {user3.is_active}")                         # False
+    print(f"Информация: {user3.get_user_info()}")
+    
+    # Пользователь без указания возраста
+    user4 = TestUser("alice_brown", "alice@example.com", "strongpass456")
+    print("\n=== Пользователь 4 ===")
+    print(f"Возраст: {user4.age}")                                # None
+    print(f"Совершеннолетний: {user4.is_adult()}")               # None
+    print(f"Активен (по умолчанию): {user4.is_active}")          # True
+
+Пример 2: Использование класса TestLogger
+    # Создание экземпляра логгера
+    logger = TestLogger()
+    
+    # Логирование различных тестов
+    logger.log_test("test_login", "passed")
+    logger.log_test("test_registration", "passed")
+    logger.log_test("test_password_reset", "failed")
+    logger.log_test("test_logout", "passed")
+    logger.log_test("test_profile_update", "failed")
+    logger.log_test("test_email_verification", "passed")
+    logger.log_test("test_data_export", "passed")
+    
+    # Получение статистики
+    print("=== Статистика тестов ===")
+    stats = logger.get_statistics()
+    print(f"Всего тестов: {stats['total_tests']}")              # 7
+    print(f"Пройдено: {stats['passed']}")                        # 5
+    print(f"Провалено: {stats['failed']}")                       # 2
+    print(f"Процент успеха: {stats['success_rate']}%")          # 71.43
+    
+    # Получение списка проваленных тестов
+    print("\n=== Проваленные тесты ===")
+    failed = logger.get_failed_tests()
+    print(failed)  # ['test_password_reset', 'test_profile_update']
+    
+    # Демонстрация метода clear()
+    print("\n=== Очистка логгера ===")
+    logger.clear()
+    print(f"Статистика после очистки: {logger.get_statistics()}")
+    # {'total_tests': 0, 'passed': 0, 'failed': 0, 'success_rate': 0.0}
+    
+    # Повторное логирование
+    logger.log_test("test_new_feature", "passed")
+    logger.log_test("test_bug_fix", "passed")
+    print(f"Новая статистика: {logger.get_statistics()}")
+
+Пример 3: Комбинированное использование TestUser и TestLogger
+    # Создание пользователей для тестирования
+    test_users = [
+        TestUser("admin", "admin@test.com", "admin123456", 30),
+        TestUser("user1", "user1@test.com", "pass123", 17),
+        TestUser("user2", "invalid-email", "weak", 25),
+        TestUser("user3", "user3@test.com", "strongpassword", None)
+    ]
+    
+    # Создание логгера для записи результатов валидации
+    validation_logger = TestLogger()
+    
+    # Валидация каждого пользователя и логирование результатов
+    for i, user in enumerate(test_users, 1):
+        test_name = f"test_user{i}_validation"
+        
+        # Проверка валидности данных
+        email_valid = user.validate_email()
+        password_valid = user.validate_password()
+        is_adult = user.is_adult()
+        
+        # Логирование результата валидации
+        if email_valid and password_valid:
+            if is_adult is None:
+                validation_logger.log_test(f"{test_name}_age_check", "failed")
+            elif is_adult:
+                validation_logger.log_test(test_name, "passed")
+            else:
+                validation_logger.log_test(f"{test_name}_minor", "passed")
+        else:
+            validation_logger.log_test(test_name, "failed")
+        
+        # Вывод информации о пользователе
+        print(f"\nПользователь {i}: {user.username}")
+        print(f"  Email валиден: {email_valid}")
+        print(f"  Пароль валиден: {password_valid}")
+        print(f"  Совершеннолетний: {is_adult}")
+    
+    # Итоговая статистика валидации
+    print("\n=== Итоговая статистика валидации ===")
+    final_stats = validation_logger.get_statistics()
+    print(f"Всего проверок: {final_stats['total_tests']}")
+    print(f"Успешных: {final_stats['passed']}")
+    print(f"Проваленных: {final_stats['failed']}")
+    print(f"Процент успеха: {final_stats['success_rate']}%")
+    
+    # Список проваленных проверок
+    failed_validations = validation_logger.get_failed_tests()
+    if failed_validations:
+        print(f"\nПроваленные проверки: {failed_validations}")
+
+Ожидаемый вывод:
+Примеры демонстрируют:
+- Создание объектов TestUser с различными параметрами
+- Использование всех методов валидации
+- Работу с опциональными параметрами
+- Логирование результатов в TestLogger
+- Получение статистики и списка проваленных тестов
+- Комбинированное использование классов для тестирования

@@ -1,0 +1,63 @@
+#  Python venv — краткий гид
+# -----------------------------
+
+# 1. Создание виртуального окружения
+python -m .venv venv         # создаёт папку venv в проекте
+
+# 2. Активация окружения
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
+# Windows (cmd)
+venv\Scripts\activate.bat
+# macOS / Linux
+source venv/bin/activate
+
+# 3. Установка зависимостей
+pip install <package_name>
+pip install playwright pytest
+
+# 4. Сохранение зависимостей
+pip freeze > requirements.txt
+
+# 5. Установка зависимостей из файла
+pip install -r requirements.txt
+
+# 6. Деактивация окружения
+deactivate
+
+# 7. Удаление окружения
+rm -rf venv               # macOS / Linux
+rmdir /s venv             # Windows
+
+# 8. Совет
+# Добавьте venv в .gitignore, чтобы не коммитить окружение
+venv/
+
+
+
+
+Команда:
+python -m venv venv
+
+Первый venv — это модуль, встроенный в Python
+Он отвечает за создание виртуальной среды. Когда ты пишешь:
+python -m venv
+ты говоришь интерпретатору: "Запусти модуль venv как программу".
+Этот модуль создаёт изолированное окружение, копируя интерпретатор Python и настраивая пути.
+
+Второй .venv — это имя папки, куда создаётся среда
+То есть команда:
+python -m venv .venv
+означает: "Создай виртуальное окружение в папке с именем .env".
+
+После выполнения появится структура:
+venv/
+├── bin/ (или Scripts/ на Windows)
+├── include/
+├── lib/
+└── pyvenv.cfg
+
+💡 Итого:
+python  — запускает интерпретатор Python
+-m venv — запускает встроенный модуль для создания окружения
+.venv     — имя каталога для хранения окружения
