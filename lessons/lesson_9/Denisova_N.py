@@ -10,5 +10,11 @@ test_id = 42
 
 # ========== Часть 2 (задача 4) ==========
 # Задача 4:
-# Из списка чисел получите список квадратов только четных чисел через list comprehension
+# Из списка чисел получите список квадратов только не четных чисел через list comprehension
 numbers = [1, 2, 3, 4, 5, 6]
+
+print(test_id % 2 == 0)
+print(1 <= test_id <= 100)
+
+new_list = [x ** 2 for x in numbers if x % 2 > 0]
+print(new_list)

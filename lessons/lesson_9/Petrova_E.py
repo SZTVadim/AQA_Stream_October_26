@@ -17,3 +17,14 @@ b = 5
 products = [{"id": 1, "name": "Phone"}, {"id": 2, "name": "Laptop"}]
 # Извлеките name второго продукта (Laptop)
 # Замените id второго продукта на 3
+
+c = a + b
+print(c)
+print(a / b)
+print(a // b)
+print(a % b)
+
+name = products[1]["name"]
+print(name)
+products[1]["id"] = 3
+print(products)
