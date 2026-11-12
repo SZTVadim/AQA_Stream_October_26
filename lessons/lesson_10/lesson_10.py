@@ -2,6 +2,7 @@
 
 a = 1
 
+
 def circle_area(radius):
     PI = 3.14
     result = PI * radius * radius
@@ -14,6 +15,8 @@ b = circle_area(1)
 
 c = 1
 f = 3
+
+
 # print(b)
 # n = circle_area(2)
 
@@ -23,6 +26,7 @@ def add(aa, bb, cc=0):
     print(f"cc : {cc}")
     return aa + bb + cc
 
+
 # print(add(1, 2))
 # print(add(bb=2, aa=3))
 # print(add(bb=2, 3))  # SyntaxError: positional argument follows keyword argument
@@ -31,15 +35,19 @@ def add(aa, bb, cc=0):
 def sum_all(*args):
     return sum([n for n in args])
 
+
 # print(sum_all(*[e for e in range(1, 100000)]))
 
 # Условия
 y = 15
+
+
 def validation_int(num):
     if num % 2 == 0:
         print(f"{num} четное")
     else:
         print(f"{num} не четное")
+
 
 # validation_int(1)
 # validation_int(100)
@@ -68,6 +76,8 @@ def new_validation_int(num):
 
 # Условие в условии
 x = 88
+
+
 # if x >= 0:
 #     if x < 10:
 #         print(f"{x} цифра")
@@ -91,6 +101,7 @@ def option_var(command):
         case _:  # "_:" во всех остальных случаях, если другие кейсы дали false
             print("Неизвестная команда")
 
+
 # option_var("any_option")
 # def funny_option():
 #     x = int(input("Введите число: "))
@@ -110,12 +121,15 @@ def option_var(command):
 # циклы for
 # else в for
 message = "Hello"
+
+
 def without_err():
     for l in message:
         print(l)
     else:
         print(f"Последний символ {l}. Цикл завершен")
     print("Работа программы завершена")
+
 
 def with_err():
     for l in message:
@@ -127,6 +141,7 @@ def with_err():
     else:
         print(f"Последний символ {l}. Цикл завершен")
     print("Работа программы завершена")
+
 
 # without_err()
 # with_err()
